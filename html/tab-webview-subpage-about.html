@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<script type="text/javascript" charset="utf-8">
+			//取消浏览器的所有事件，使得active的样式在手机上正常生效
+			document.addEventListener('touchstart', function() {
+				return false;
+			}, true);
+			// 禁止选择
+			document.oncontextmenu = function() {
+				return false;
+			};
+			// H5 plus事件处理
+			function plusReady() {
+				// Android处理返回键
+				plus.key.addEventListener('backbutton', function() {
+					('iOS' == plus.os.name) ? plus.nativeUI.confirm('确认退出？', function(e) {
+						if (e.index > 0) {
+							plus.runtime.quit();
+						}
+					}, 'HelloH5', ['取消', '确定']): (confirm('确认退出？') && plus.runtime.quit());
+				}, false);
+				// 关闭启动界面
+				plus.navigator.setStatusBarBackground('#D74B28');
+				setTimeout(function() {
+					plus.navigator.closeSplashscreen();
+				}, 200);
+			}
+			if (window.plus) {
+				plusReady();
+			} else {
+				document.addEventListener('plusready', plusReady, false);
+			}
+			// 处理点击事件
+			var _openw = null;
+			var as = 'pop-in'; // 默认窗口动画
+			/**
+			 * 打开新窗口
+			 * @param {String} id	加载的页面地址，也用作窗口标识
+			 * @param {String} t    页面的标题
+			 * @param {String} d	文档页面文件名称（doc目录下），不传入则使用页面的标题
+			 */
+			function clicked(id, t, d) {
+				if (_openw) {
+					return;
+				} // 防止快速点击
+				var ws = {
+					scrollIndicator: 'none',
+					scalable: false,
+					popGesture: 'close',
+					backButtonAutoControl: 'close',
+					titleNView: {
+						autoBackButton: true,
+						backgroundColor: '#D74B28',
+						titleColor: '#CCCCCC'
+					}
+				};
+				t && (ws.titleNView.titleText = t, d || (d = t.toLowerCase()));
+				d && (ws.titleNView.buttons = [{
+					fontSrc: '_www/helloh5.ttf',
+					text: '\ue301',
+					fontSize: '22px',
+					onclick: 'javascript:openDoc("/doc/' + d + '.html")'
+				}]);
+				_openw = plus.webview.create(id, id, ws);
+				_openw.addEventListener('loaded', function() { //页面加载完成后才显示
+					_openw && _openw.show(as, null, function() {
+						_openw = null; //避免快速点击打开多个页面
+					});
+				}, false);
+				_openw.addEventListener('hide', function() {
+					_openw = null;
+				}, false);
+				_openw.addEventListener('close', function() { //页面关闭后可再次打开
+					_openw = null;
+				}, false);
+			}
+			// 打开关于页面
+			function openAbout() {
+				if (_openw) {
+					return;
+				} // 防止快速点击
+				_openw = plus.webview.create('about.html', 'about', {
+					scrollIndicator: 'none',
+					scalable: false,
+					popGesture: 'close',
+					backButtonAutoControl: 'close',
+					titleNView: {
+						autoBackButton: true,
+						backgroundColor: '#D74B28',
+						titleColor: '#CCCCCC',
+						titleText: '关于',
+						buttons: [{
+							type: 'share',
+							onclick: 'javascript:share()'
+						}]
+					}
+				});
+				_openw.addEventListener('close', function() {
+					_openw = null;
+				}, false);
+				_openw.show('zoom-fade-out');
+			}
+		</script>
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<style>
+			html,
+			body {
+				background-color: #efeff4;
+			}
+
+			.title {
+				margin: 20px 15px 10px;
+				color: #6d6d72;
+				font-size: 15px;
+			}
+
+			li {
+				padding: 0.8em;
+				border-bottom: 1px solid #eaeaea;
+			}
+
+			li:active {
+				background: #f4f4f4;
+			}
+
+			.item {
+				display: block;
+				background: no-repeat right center url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwEAYAAAAHkiXEAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAAASAAAAEgARslrPgAAAoRJREFUeNrt179L61AUwPFz0kZRh9BBB+kkxUGM0nNp/bGKFVFBwdI/wUEQHNxdOnXzHxBXBbUiFimi2KUQ0jgIOrVKhHbSDgaKRfOGPAvvPYSWp9xSzmcp6fTlHm7uDQBjjDHGGGOMMcYYY4wxCUI7oZ3QTnf3WGosNZbq65Pd89MU2QF/04paUStalvqgPqgPpRIREZEQsrt+StsNAHKQg5xtQx7ykO/vR0REvLgIr4XXwmtTU7Lzvlv7DQAAAFZW3HP33D3PZr1nTVNQQQWz2fBB+CB8MDMju7DjfZ4FVKEKVY6PhRBCCNf1fh1HkCBBsZjszv/lkx3wlefMc+Y58/4eiAaigejhoX/UP+ofHRlBE000x8chAhGIJBKDMAiDcHtbLpfL5fL9vezujhWPx+PxuM9Hj/RIj3t7f+6ItzdhCUtYq6uyOzve5yBEUiRFcnf3cxD0QR/0Ua+TSiqpiYTszo43aU/ak3ZPD13SJV3admMQp3RKp5Ylu69ZftkBrfIWure3vlxfri8fHSEgIASD3pngOLiAC7iwuSm7s1lteg39V+PLOAUpSJ2ceP/GYrAO67D++goGGGAsLZlooolXV7J7m9X2O8C7bmqaO+QOuUNnZ7AFW7A1PQ1RiEK0WnX33X13f36+YBbMgpnPy+5tFcoO+Iqu67quBwJdapfapWYygICAExOwARuw8fKibCvbyvbcnFEySkbJMGT3dgzvVTMwINIiLdI3N43D9Zqu6bpS8XaErsvu7FjegptmY+F/33IiT5GnyNPwsOy+79Z+Z8AszMJstQo1qEHt7k5xFEdxFheNoBE0gsWi7DzGGGOMMcYYY4wxxhhjjDHGWCt+AQ7J6F+fXYnsAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE4LTEyLTA2VDExOjUxOjAyKzA4OjAwDV/r1QAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxOC0xMi0wNlQxMTo1MTowMiswODowMHwCU2kAAABOdEVYdHN2ZzpiYXNlLXVyaQBmaWxlOi8vL2hvbWUvYWRtaW4vaWNvbi1mb250L3RtcC9pY29uX2huMGM5Ymp6cmRxL3NleS1Gb3J3YXJkLnN2Z+G1zWIAAAAASUVORK5CYII=);
+				background-size: 24px 24px;
+				-ms-touch-action: auto;
+			}
+
+			.chs {
+				font-size: 0.8em;
+				color: #838383;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="mui-content">
+			<div class="title">
+				您好 <span id='account'></span>，您已成功登录。
+				<p>这是webview模式选项卡的第1个子页面</p>
+				<p>这里介绍几个组件</p>
+				<p style="padding: 5px 20px;margin-bottom: 5px;">
+				</p>
+				<!-- <p>何谓webview模式？其实就是每个选项卡内容都是一个独立的webview，彼此之间互相独立、互不影响；
+					对于较为复杂的业务系统，推荐使用该模式。</p>
+				<p>基于webview模式的选项卡，支持原生加速的下拉刷新，点击第二个选项卡（“消息”），切换选项卡，体验下拉刷新；</p> -->
+			</div>
+			<ul class="mui-table-view mui-table-view-striped mui-table-view-condensed">
+				<li id="plus/camera/camera.html" onclick="clicked(this.id, 'Camera')">
+					<span class="item">Camera
+						<div class="chs">摄像头拍照/录像</div>
+					</span>
+				</li>
+				<li id="plus/speech/speech.html" onclick="clicked(this.id, 'Speech')">
+					<span class="item">Speech
+						<div class="chs">语音识别</div>
+					</span>
+				</li>
+				<li id="plus/orientation/orientation.html" onclick="clicked(this.id, 'Orientation')">
+					<span class="item">Orientation
+						<div class="chs">方向传感器</div>
+					</span>
+				</li>
+				<li id="plus/lock/lockHand.html" onclick="clicked(this.id, 'Orientation')">
+					<span class="item">Lockhand
+						<div class="chs">设置手势锁</div>
+					</span>
+				</li>
+			</ul>
+		</div>
+	</body>
+	<script src="../js/mui.min.js"></script>
+	<script>
+		mui.init({
+			// swipeBack:true //启用右滑关闭功能
+		});
+	</script>
+</html>
