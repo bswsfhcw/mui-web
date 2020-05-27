@@ -40,7 +40,9 @@
 			}
 
 			function loadMedia(src) {
-				document.getElementById('img').src = src;
+				alert('--'+src);
+				document.getElementById('img').backgroundImage='url(' + src + ')';
+				// document.getElementById('img').src = src;
 			}
 		</script>
 		<link rel="stylesheet" href="../../../css/plus/common.css" type="text/css" charset="utf-8" />

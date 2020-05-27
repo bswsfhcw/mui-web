@@ -106,6 +106,12 @@
 				}, false);
 				_openw.show('zoom-fade-out');
 			}
+			function openAnim(){
+				// webview_animation.html中存在预创建逻辑
+				clicked('plus/webview/webview_animation.html', '系统原生动画', {
+					backButtonAutoControl:'none',
+				});
+			}
 		</script>
 		<link rel="stylesheet" href="../css/mui.min.css">
 		<style>
@@ -181,8 +187,18 @@
 					</span>
 				</li>
 				<li id="plus/fingerprint/fingerprint.html" onclick="clicked(this.id, 'Fingerprint')">
-					<span class="item">Fingerprint
+					<span class="item">fingerprint
 						<div class="chs">指纹识别</div>
+					</span>
+				</li>
+				<li onclick="openAnim()">
+					<span class="item">webviewAnimation
+						<div class="chs">窗口动画</div>
+					</span>
+				</li>
+				<li id="plus/video/video.html" onclick="clicked(this.id, 'Video')">
+					<span class="item">video
+						<div class="chs">视频多媒体</div>
 					</span>
 				</li>
 			</ul>
