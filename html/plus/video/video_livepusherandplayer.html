@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta name="HandheldFriendly" content="true" />
+		<meta name="MobileOptimized" content="320" />
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../../../js/plus/common.js"></script>
+		<script type="text/javascript">
+			var pusher = null;
+			var bstart = false;
+			var video = null;
+			var playing = false;
+			// H5 plus事件处理
+			function plusReady() {
+				// 创建直播推流控件
+				pusher = new plus.video.LivePusher('pusher', {
+					url: 'rtmp://172.16.0.101:1935/live/home'
+				});
+				// 监听状态变化事件
+				pusher.addEventListener('statechange', function(e) {
+					console.log('statechange: ' + JSON.stringify(e));
+				}, false);
+
+				// 创建视频播放控件
+				video = new plus.video.VideoPlayer('video', {
+					src: 'rtmp://172.16.0.101:1935/live/home',
+					//autoplay:true,
+					'danmu-btn': true,
+					'enable-danmu': true
+				});
+				video.addEventListener('play', function() {
+					updatePlaying(true);
+				}, false);
+				video.addEventListener('pause', function() {
+					updatePlaying(false);
+				}, false);
+			}
+			document.addEventListener('plusready', plusReady, false);
+			// 开始/停止推流
+			function ppPusher() {
+				if (bstart) {
+					pusher.stop();
+					bstart = false;
+				} else {
+					var path = document.getElementById('path').value;
+					if (path && path.length > 0) {
+						pusher.setOptions({
+							url: path
+						});
+						pusher.start();
+						bstart = true
+					} else {
+						plus.nativeUI.toast('请输入直播服务器地址');
+					}
+				}
+				var pp = document.getElementById('pp');
+				pp.innerText = bstart ? '停止' : '开始';
+			}
+			// 切换摄像头
+			function switchCamera() {
+				pusher.switchCamera();
+			}
+			// 播放
+			function playVideo1() {
+				var path = document.getElementById('path1').value;
+				if (path && path.length > 0) {
+					video.setOptions({
+						src: path,
+						objectFit: 'fill',
+						'danmu-list': [{
+							"text": "弹幕01",
+							"color": "#FF0000",
+							"time": 2
+						}, {
+							"text": "弹幕02",
+							"color": "#00FF00",
+							"time": 2
+						}]
+					});
+					video.play();
+				}
+			}
+			// 更新为播放状态
+			function updatePlaying(play) {
+				playing = play;
+				document.getElementById('pp1').innerText = playing ? '暂停' : '播放';
+			}
+			// 播放/暂停
+			function ppVideo() {
+				playing ? video.pause() : video.play();
+			}
+		</script>
+		<link rel="stylesheet" href="../../../css/plus/common.css" type="text/css" charset="utf-8" />
+		<style type="text/css">
+			input {
+				width: 70%;
+				font-size: 16px;
+				padding: .2em .2em;
+				border: 1px solid #00B100;
+				-webkit-user-select: text;
+			}
+
+			button {
+				width: 20%;
+				margin: 6px 0 6px 6px;
+				font-size: 16px;
+				color: #FFF;
+				background-color: #00CC00;
+				border: 1px solid #00B100;
+				padding: .2em 0em;
+				-webkit-border-radius: 5px;
+				border-radius: 5px;
+			}
+		</style>
+	</head>
+	<body>
+		<br />
+		<div id="pusher" style="width:90%;height:30%;background-color:#000000;margin:auto"></div>
+		<div id="video" style="width:90%;height:30%;background-color:#000000;margin:auto;margin-top: 5px;"></div>
+		<br />
+		<div style="text-align:center; margin:auto;">
+			<input id="path" type="text" value="rtmp://172.16.0.101:1935/live/home" placeholder="请输入直播服务器地址(rtmp)" />
+			<button id="pp" onclick="ppPusher()">开始直播</button>
+			<br />
+			<input id="path1" type="text" value="rtmp://172.16.0.101:1935/live/home" placeholder="请输入视频地址，支持mp4/flv格式" />
+			<button onclick="playVideo1()">观看直播</button>
+		</div>
+		<div class="button" onclick="switchCamera()">切换摄像头</div>
+		<div id="pp1" class="button" onclick="ppVideo()">播放</div>
+	</body>
+</html>
