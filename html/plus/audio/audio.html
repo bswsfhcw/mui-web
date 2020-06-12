@@ -1,0 +1,240 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta name="HandheldFriendly" content="true" />
+		<meta name="MobileOptimized" content="320" />
+		<title>Hello H5+ 2</title>
+		<script type="text/javascript" src="../../../js/mui.min.js"></script>
+		<script type="text/javascript" src="../../../js/plus/common.js"></script>
+		<script type="text/javascript">
+			// H5 plus事件处理
+			function plusReady() {}
+			if (window.plus) {
+				plusReady();
+			} else {
+				document.addEventListener('plusready', plusReady, false);
+			}
+			// 播放文件相关对象
+			var pGameStart = null,pGameOver = null;
+			// 开始播放
+			var urlGameOverurl='_www/audio/voice-gameover-qgw.mp3';
+			var urlGameStarturl='_www/audio/voice-gamestart-qgw.mp3';
+			
+			function startPlayGameStart() {
+				pGameStart = plus.audio.createPlayer(urlGameStarturl);
+				pGameStart.play(function() {
+					// stopPlayGameOver();
+					stopPlayGameStart();
+				}, function(e) {
+					outLine('播放音频文件"'  + urlGameOverurl +'"失败：' + e.message);
+				});
+			}
+			function startPlayGameOver() {
+				if(!pGameOver){ //防止重复播放
+					pGameOver = plus.audio.createPlayer({
+						'loop':true,
+						'src':urlGameOverurl
+					});
+				}
+				pGameOver.play(function() {
+					// stopPlayGameOver();
+					// pGameOver.resume()
+				}, function(e) {
+					outLine('播放音频文件"' + urlGameStarturl + '"失败：' + e.message);
+				});
+			}
+			// 停止播放
+			function stopPlayGameStart() {
+				// 操作播放对象
+				if (pGameStart) {
+					pGameStart.stop();
+					pGameStart = null;
+				}
+			}
+			// 停止播放
+			function stopPlayGameOver() {
+				// 操作播放对象
+				if (pGameOver) {
+					pGameOver.stop();
+					pGameOver = null;
+				}
+			}
+			// 重写关闭
+			var _back = window.back;
+
+			function resetback() {
+				if (pGameStart) {
+					stopPlayGameStart();
+				}
+				// 停止播放
+				if (pGameOver) {
+					stopPlayGameOver();
+				} else {
+					_back();
+				}
+			}
+			window.back = resetback;
+
+			function initFz(fz, df) {
+				var options = '';
+				var i = 1
+				while (i <= fz) {
+					if (i == df) {
+						options += '<option checked value="' + i + '">' + i + '</option>'
+					} else {
+						options += '<option value="' + i + '">' + i + '</option>'
+					}
+					i++
+				}
+				// console.log('options:' + options)
+				document.getElementById('sc').innerHTML = options
+				// $$$('khnd').innerHTML = options
+			}
+			function resettsy() {
+				var tsy = document.getElementById('tsy')
+				var index = tsy.selectedIndex
+				var tsyHz = tsy.options[index].value;
+				urlGameOverurl = '_www/audio/voice-gameover-'+tsyHz+'.mp3';
+				urlGameStarturl = '_www/audio/voice-gamestart-'+tsyHz+'.mp3';
+			}
+			//重选时间
+			function resetjd() {
+				var scSe = document.getElementById('sc')
+				var index = scSe.selectedIndex
+				var sc = scSe.options[index].text;
+				var scHour = Math.floor(sc / 60);
+				var scMi = sc % 60;
+				var scM = sc * 60;
+				if (scHour < 10) {
+					scHour = "0" + scHour
+				}
+				if (scMi < 10) {
+					scMi = "0" + scMi
+				}
+				if (jsq) {
+					clearInterval(jsq);
+					jsq = null;
+				}
+				mui(progressbar1).progressbar().setProgress(100)
+				document.getElementById('scM').value = scM
+				document.getElementById('sjjd').innerHTML = scHour + "   :   " + scMi + "   :   00"
+			}
+			// 计时中
+			function resetjd1(havScM,progress) {
+				var scHour = Math.floor(havScM / 3600)
+				var havScM_ = havScM % 3600;
+				var scMi = Math.floor(havScM_ / 60)
+				var scM = havScM_ % 60;
+				if (scHour < 10) {
+					scHour = "0" + scHour
+				}
+				if (scMi < 10) {
+					scMi = "0" + scMi
+				}
+				if (scM < 10) {
+					scM = "0" + scM
+				}
+				mui(progressbar1).progressbar().setProgress(progress)
+				document.getElementById('sjjd').innerHTML = scHour + "   :   " + scMi + "   :   " + scM
+			}
+			var jsq = null;
+			var sd = 1;//每秒原始速度
+			var cost = 0;
+			var zt = false;
+
+			function startStopJs() {
+				zt = !zt;
+				if(zt){
+					document.getElementById('starStop').innerText = '暂停计时'
+				}else{
+					document.getElementById('starStop').innerText = '计时'
+				}
+			}
+
+			function reJs() {
+				document.getElementById('starStop').style.display = ''
+				document.getElementById('starStop').innerText = '暂停计时'
+				zt = true;
+				cost = -1;
+				sd =  parseInt(document.getElementById('sd').value);
+				if (sd == 0) {
+					sd =1
+				}
+				var scM = document.getElementById('scM').value;//时长到秒维度
+				resetjd1(scM,100);
+				//花费时长 秒
+				if (jsq) {
+					clearInterval(jsq);
+					jsq = null;
+				}
+				stopPlayGameOver();
+				startPlayGameStart();
+				setTimeout(function(){
+					jsq = setInterval(function() {
+						if (zt) {
+							cost += sd;
+							var have = scM - cost;
+							if (have < 0) {
+								have = 0
+							}
+							var progress = Math.floor(have / scM * 100)
+							// 最新分钟 秒
+							resetjd1(have,progress);
+							if (have == 0) {
+								clearInterval(jsq);
+								jsq = null;
+								startPlayGameOver();
+							}
+						}
+					}, 1000)
+				},2000)
+			}
+		</script>
+		<link rel="stylesheet" href="../../../css/mui.min.css" type="text/css" charset="utf-8" />
+		<link rel="stylesheet" href="../../../css/plus/common.css" type="text/css" charset="utf-8" />
+		<style type="text/css">
+		</style>
+	</head>
+	<body>
+		<div class="mui-content" style="background-color: white;">
+			<div class="mui-input-row input-row">
+				<label class="input-label" style="width: 70%;">
+					<span>设置游戏时长(分钟)：</span>
+				</label>
+				<select name="sc" id="sc" onchange="resetjd()" style="width: 20%;" class="mui-select wn-gray">
+				</select>
+			</div>
+			<hr />
+			<div id="sj" class="sj" style="margin-top: 20px;">
+				<span>游戏剩余时长：</span><span id="sjjd">00 : 01 : 00</span>
+				<br />
+				<input id="scM" value="60" style="display: none;" /><!-- 秒数 -->
+			</div>
+			<div id="demo1" class="mui-text-center" style="margin-top: 20px;margin-bottom: 60px;">
+				<p class="mui-progressbar mui-progressbar-in" data-progress="20" style="height:20px;width: 90%;margin-left: 5%;"><span></span></p>
+			</div>
+
+			<div id="starStop" class="button" onclick="startStopJs()" style="display: none;">暂停计时</div>
+			<div class="button" onclick="reJs()">重新计时</div>
+			<div class="button" onclick="startPlayGameOver()">时长提示</div>
+			<div class="button" onclick="stopPlayGameOver()">结束提示</div>
+			</br>
+			提示音：
+				<select name="tsy" id="tsy" onchange="resettsy()" style="width:70%;" class="mui-select wn-gray">
+					<option checked value="qgw">情感女声</option>
+					<option checked value="qgm">情感男声</option>
+					<option checked value="fqgw">非情感女声</option>
+					<option checked value="fqgm">非情感男声</option>
+				</select>
+				</br>
+			速度：<input id="sd" type="range" style="width: 70%;" value="0" max="30" mmin="1" />
+		</div>
+		<script>
+			initFz(60, 5);
+			var progressbar1 = mui('#demo1');
+			mui(progressbar1).progressbar().setProgress(100)
+		</script>
+	</body>
+</html>
